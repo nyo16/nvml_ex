@@ -7,6 +7,11 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib"]
 
+[features]
+default = ["nif_version_2_15"]
+nif_version_2_15 = ["rustler/nif_version_2_15"]
+nif_version_2_16 = ["rustler/nif_version_2_16"]
+
 [dependencies]
-rustler = "0.37.0"
+rustler = { version = "0.37.0", default-features = false, features = ["derive"] }
 nvml-wrapper = { git = "https://github.com/rust-nvml/nvml-wrapper", branch = "main" }
