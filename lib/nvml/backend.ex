@@ -41,8 +41,6 @@ defmodule Nvml.Backend do
       true
     rescue
       _ -> false
-    catch
-      :error, _ -> false
     end
   end
 
