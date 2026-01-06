@@ -35,8 +35,11 @@ defmodule Nvml.Backend do
   """
   def nvml_available? do
     try do
-      Nvml.Native.init()
-      true
+      case Nvml.Native.init() do
+        {:ok, _} -> true
+        "NVML initialized successfully" -> true
+        _ -> false
+      end
     rescue
       _ -> false
     end
