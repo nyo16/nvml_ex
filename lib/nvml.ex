@@ -91,7 +91,7 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{total: total, free: free, used: used}} = Nvml.device_memory_info(0)
+      iex> {:ok, %{total: total, free: _free, used: _used}} = Nvml.device_memory_info(0)
       iex> total > 0
       true
   """
@@ -112,18 +112,13 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{gpu: gpu, memory: memory}} = Nvml.device_utilization(0)
+      iex> {:ok, %{gpu: gpu, memory: _memory}} = Nvml.device_utilization(0)
       iex> gpu >= 0 and gpu <= 100
       true
   """
   def device_utilization(index) when is_integer(index) do
-    case native().device_utilization(index) do
-      {gpu, memory} ->
-        {:ok, %{gpu: gpu, memory: memory}}
-
-      {:error, _} = error ->
-        error
-    end
+    {gpu, memory} = native().device_utilization(index)
+    {:ok, %{gpu: gpu, memory: memory}}
   end
 
   @doc """
@@ -165,7 +160,7 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{graphics: g, sm: s, memory: m}} = Nvml.device_clock_info(0)
+      iex> {:ok, %{graphics: g, sm: _s, memory: _m}} = Nvml.device_clock_info(0)
       iex> g > 0
       true
   """
@@ -186,7 +181,7 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{graphics: g, sm: s, memory: m}} = Nvml.device_max_clock_info(0)
+      iex> {:ok, %{graphics: g, sm: _s, memory: _m}} = Nvml.device_max_clock_info(0)
       iex> g > 0
       true
   """
@@ -207,18 +202,13 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{generation: gen, width: width}} = Nvml.device_pcie_link_info(0)
+      iex> {:ok, %{generation: gen, width: _width}} = Nvml.device_pcie_link_info(0)
       iex> gen > 0
       true
   """
   def device_pcie_link_info(index) when is_integer(index) do
-    case native().device_pcie_link_info(index) do
-      {gen, width} ->
-        {:ok, %{generation: gen, width: width}}
-
-      {:error, _} = error ->
-        error
-    end
+    {gen, width} = native().device_pcie_link_info(index)
+    {:ok, %{generation: gen, width: width}}
   end
 
   @doc """
@@ -228,18 +218,13 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{tx: tx, rx: rx}} = Nvml.device_pcie_throughput(0)
+      iex> {:ok, %{tx: tx, rx: _rx}} = Nvml.device_pcie_throughput(0)
       iex> is_integer(tx)
       true
   """
   def device_pcie_throughput(index) when is_integer(index) do
-    case native().device_pcie_throughput(index) do
-      {tx, rx} ->
-        {:ok, %{tx: tx, rx: rx}}
-
-      {:error, _} = error ->
-        error
-    end
+    {tx, rx} = native().device_pcie_throughput(index)
+    {:ok, %{tx: tx, rx: rx}}
   end
 
   @doc """
@@ -286,18 +271,13 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{utilization: util, sampling_period: period}} = Nvml.device_encoder_utilization(0)
+      iex> {:ok, %{utilization: util, sampling_period: _period}} = Nvml.device_encoder_utilization(0)
       iex> util >= 0
       true
   """
   def device_encoder_utilization(index) when is_integer(index) do
-    case native().device_encoder_utilization(index) do
-      {utilization, sampling_period} ->
-        {:ok, %{utilization: utilization, sampling_period: sampling_period}}
-
-      {:error, _} = error ->
-        error
-    end
+    {utilization, sampling_period} = native().device_encoder_utilization(index)
+    {:ok, %{utilization: utilization, sampling_period: sampling_period}}
   end
 
   @doc """
@@ -307,18 +287,13 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{utilization: util, sampling_period: period}} = Nvml.device_decoder_utilization(0)
+      iex> {:ok, %{utilization: util, sampling_period: _period}} = Nvml.device_decoder_utilization(0)
       iex> util >= 0
       true
   """
   def device_decoder_utilization(index) when is_integer(index) do
-    case native().device_decoder_utilization(index) do
-      {utilization, sampling_period} ->
-        {:ok, %{utilization: utilization, sampling_period: sampling_period}}
-
-      {:error, _} = error ->
-        error
-    end
+    {utilization, sampling_period} = native().device_decoder_utilization(index)
+    {:ok, %{utilization: utilization, sampling_period: sampling_period}}
   end
 
   @doc """
@@ -409,18 +384,13 @@ defmodule Nvml do
 
   ## Examples
 
-      iex> {:ok, %{corrected: c, uncorrected: u}} = Nvml.device_ecc_errors(0)
+      iex> {:ok, %{corrected: c, uncorrected: _u}} = Nvml.device_ecc_errors(0)
       iex> c >= 0
       true
   """
   def device_ecc_errors(index) when is_integer(index) do
-    case native().device_ecc_errors(index) do
-      {corrected, uncorrected} ->
-        {:ok, %{corrected: corrected, uncorrected: uncorrected}}
-
-      {:error, _} = error ->
-        error
-    end
+    {corrected, uncorrected} = native().device_ecc_errors(index)
+    {:ok, %{corrected: corrected, uncorrected: uncorrected}}
   end
 
   @doc """
