@@ -511,10 +511,11 @@ defmodule Nvml do
            graphics: graphics_procs
          },
          ecc_errors: ecc,
-         fan_speed: case fan do
-           {:ok, speed} -> speed
-           {:error, _} -> nil
-         end
+         fan_speed:
+           case fan do
+             {:ok, speed} -> speed
+             {:error, _} -> nil
+           end
        }}
     end
   end

@@ -3,7 +3,15 @@ defmodule Nvml.Native do
   NIF bindings for NVML (NVIDIA Management Library).
   """
 
-  use Rustler, otp_app: :nvml, crate: "nvml_native"
+  version = Mix.Project.config()[:version]
+
+  use RustlerPrecompiled,
+    otp_app: :nvml,
+    crate: "nvml_native",
+    base_url: "https://github.com/nyo16/nvml_ex/releases/download/v#{version}",
+    version: version,
+    targets: ~w(x86_64-unknown-linux-gnu),
+    force_build: System.get_env("NVML_BUILD") in ["1", "true"]
 
   # When your NIF is loaded, it will override these functions.
 

@@ -116,8 +116,11 @@ defmodule Nvml.NativeMock do
   # Helper to get device by index
   defp get_device(index) when is_integer(index) and index >= 0 do
     case Enum.at(@mock_devices, index) do
-      nil -> raise "Device index #{index} out of range (mock has #{length(@mock_devices)} devices)"
-      device -> device
+      nil ->
+        raise "Device index #{index} out of range (mock has #{length(@mock_devices)} devices)"
+
+      device ->
+        device
     end
   end
 end
