@@ -9,4 +9,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 rustler = "0.37.0"
-nvml-wrapper = "0.10"
+nvml-wrapper = { git = "https://github.com/rust-nvml/nvml-wrapper", branch = "main" }
