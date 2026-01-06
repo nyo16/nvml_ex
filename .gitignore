@@ -26,3 +26,6 @@ nvml-*.tar
 /target/
 native/nvml_native/target/
 native/nvml_native/Cargo.lock
+
+# Local precompiled builds
+/precompiled/
