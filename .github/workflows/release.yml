@@ -60,6 +60,7 @@ jobs:
             cargo-precompile-${{ matrix.target }}-
 
       - name: Build NIF
+        id: build
         uses: philss/rustler-precompiled-action@v1.1.4
         with:
           project-name: nvml_native
@@ -73,17 +74,17 @@ jobs:
         uses: actions/attest-build-provenance@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          subject-path: "native/nvml_native/priv/native/*"
+          subject-path: ${{ steps.build.outputs.file-path }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nif-${{ matrix.nif }}-${{ matrix.target }}
-          path: native/nvml_native/priv/native/*.tar.gz
+          path: ${{ steps.build.outputs.file-path }}
           if-no-files-found: error
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: native/nvml_native/priv/native/*.tar.gz
+          files: ${{ steps.build.outputs.file-path }}
