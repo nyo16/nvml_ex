@@ -31,7 +31,9 @@ defmodule Nvml.MixProject do
       links: %{"GitHub" => @source_url},
       files: ~w(
         lib
-        native
+        native/nvml_native/src
+        native/nvml_native/Cargo.toml
+        native/nvml_native/README.md
         mix.exs
         README.md
         LICENSE
