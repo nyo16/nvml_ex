@@ -1,0 +1,90 @@
+name: Build precompiled NIFs
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    tags:
+      - "v*"
+    paths:
+      - "native/**"
+      - ".github/workflows/release.yml"
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+jobs:
+  build_release:
+    name: NIF ${{ matrix.nif }} - ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        nif: ["2.15", "2.16"]
+        target:
+          - x86_64-unknown-linux-gnu
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract project version
+        shell: bash
+        run: |
+          VERSION=$(grep '@version "' mix.exs | sed -e 's/.*@version "//g' -e 's/".*//g')
+          echo "PROJECT_VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: cargo-precompile-${{ matrix.target }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-precompile-${{ matrix.target }}-
+
+      - name: Build NIF
+        id: build
+        uses: philss/rustler-precompiled-action@v1.1.4
+        with:
+          project-name: nvml_native
+          project-version: ${{ env.PROJECT_VERSION }}
+          target: ${{ matrix.target }}
+          nif-version: ${{ matrix.nif }}
+          use-cross: false
+          project-dir: "native/nvml_native"
+
+      - name: Generate attestation
+        uses: actions/attest-build-provenance@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          subject-path: ${{ steps.build.outputs.file-path }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nif-${{ matrix.nif }}-${{ matrix.target }}
+          path: ${{ steps.build.outputs.file-path }}
+          if-no-files-found: error
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ steps.build.outputs.file-path }}

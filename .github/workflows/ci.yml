@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - main
+
+env:
+  MIX_ENV: test
+  NVML_BUILD: "true"
+
+jobs:
+  test:
+    name: Test (Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }})
+    runs-on: ubuntu-24.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - elixir: "1.18.4"
+            otp: "27.3"
+          - elixir: "1.19.4"
+            otp: "28.2"
+            lint: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ matrix.elixir }}
+          otp-version: ${{ matrix.otp }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-${{ hashFiles('**/mix.lock') }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ matrix.otp }}-${{ matrix.elixir }}-
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            native/nvml_native/target/
+          key: cargo-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            cargo-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Check formatting
+        run: mix format --check-formatted
+        if: ${{ matrix.lint }}
+
+      - name: Check unused deps
+        run: mix deps.unlock --check-unused
+        if: ${{ matrix.lint }}
+
+      - name: Compile with warnings as errors
+        run: mix compile --warnings-as-errors
+        if: ${{ matrix.lint }}
+
+      - name: Run tests
+        run: mix test
+
+      - name: Check Rust formatting
+        run: cargo fmt --manifest-path native/nvml_native/Cargo.toml --check
+        if: ${{ matrix.lint }}
+
+      - name: Run Clippy
+        run: cargo clippy --manifest-path native/nvml_native/Cargo.toml -- -D warnings
+        if: ${{ matrix.lint }}
